@@ -59,6 +59,8 @@ class PullRequest(ResourceBase):
             data['description'] = description
         if reviewers is not None:
             data['reviewers'] = reviewers
+        else:
+            data['reviewers'] = self.get()['reviewers']
         if toRef is not None:
             data['toRef'] = self._make_ref(toRef, "toRef")
         if fromRef is not None:
