@@ -71,6 +71,81 @@ class Hooks(ResourceBase, IterableResource):
         """
         return Hook(item, self.url(item), self._client, self)
 
+class Webhook(ResourceBase):
+    def __init__(self, key, url, client, parent):
+        super(Webhook, self).__init__(url, client, parent)
+        self._key = key
+
+    @response_or_error
+    def get(self):
+        """
+        Retrieve a repository webhook
+        """
+        return self._client.get(self.url())
+
+    @response_or_error
+    def enable(self, configuration=None):
+        """
+        Enable a repository webhook, optionally applying new configuration.
+        """
+        return self._client.put(self.url("/enabled"), data=configuration)
+
+    @response_or_error
+    def disable(self):
+        """
+        Disable a repository webhook
+        """
+        return self._client.delete(self.url("/enabled"))
+
+    @response_or_error
+    def settings(self):
+        """
+        Retrieve the settings for a repository webhook
+        """
+        return self._client.get(self.url("/settings"))
+
+    @response_or_error
+    def configure(self, configuration):
+        """
+        Modify the settings for a repository webhook
+        """
+        return self._client.put(self.url("/settings"), data=configuration)
+
+
+class Webhooks(ResourceBase, IterableResource):
+    def all(self, type=None):
+        """
+        Retrieve webhooks for this repository, optionally filtered by type.
+
+        type: Valid values are PRE_RECEIVE or POST_RECEIVE
+        """
+        params=None
+        if type is not None:
+            params = dict(type=type)
+        return self.paginate("", params=params)
+
+    @response_or_error
+    def create(self, name, url, events=["repo:refs_changed"], active=True):
+        """
+        Create a webhook with the given name and url
+        """
+        return self._client.post(self.url(), data={"name": name,
+                                                   "active": active,
+                                                   "events": events,
+                                                   "url": url
+                                                   })
+
+    def list(self, type=None):
+        """
+        Convenience method to return a list (rather than iterable) of all elements
+        """
+        return list(self.all(type=type))
+
+    def __getitem__(self, item):
+        """
+        Return a :class:`Webhook` object for operations on a specific hook
+        """
+        return Webhook(item, self.url(item), self._client, self)
 
 class Settings(ResourceBase):
     hooks = Nested(Hooks)
@@ -96,7 +171,7 @@ class Repository(ResourceBase):
 
         The repository's slug is derived from its name. If the name changes the slug may also change.
         """
-        return self._client.post(self.url(), data=dict(name=name))
+        return self._client.put(self.url(), data=dict(name=name))
 
     @response_or_error
     def get(self):
@@ -190,6 +265,15 @@ class Repository(ResourceBase):
         branches = self._client.get(self.url('/branches?limit={}'.format(items)))
         return json.loads(branches.content)
 
+    def get_all_tags(self, items):
+        """
+        Return list of all tags in this project and the repository
+        :param items: limit parameter (max items in result)
+        :return:
+        """
+        tags = self._client.get(self.url('/tags?limit={}'.format(items)))
+        return json.loads(tags.content)
+
     def get_commit(self, commit):
         """
         Returns detailed information about a given commit
@@ -265,6 +349,7 @@ class Repository(ResourceBase):
 
     pull_requests = Nested(PullRequests, relative_path="/pull-requests")
     settings = Nested(Settings)
+    webhooks = Nested(Webhooks)
     branch_permissions = Nested(BranchPermissions, relative_path=None)
 
 

@@ -58,7 +58,9 @@ class PullRequest(ResourceBase):
         if description is not None:
             data['description'] = description
         if reviewers is not None:
-            data['reviewers'] = reviewers
+            data['reviewers'] = []
+            for reviewer in reviewers:
+                data['reviewers'].append({"user": dict(name=reviewer)})
         else:
             data['reviewers'] = self.get()['reviewers']
         if toRef is not None:
@@ -144,6 +146,20 @@ class PullRequest(ResourceBase):
         """
         return self._client.delete(self.url("/approve"))
 
+    @response_or_error
+    def watch(self):
+        """
+        Add the current user as a watcher for the pull request.
+        """
+        return self._client.post(self.url("/watch"))
+
+    @response_or_error
+    def unwatch(self):
+        """
+        Remove the current user as a watcher for the pull request.
+        """
+        return self._client.delete(self.url("/watch"))
+
     def changes(self):
         """
         Gets changes for the specified PullRequest.
@@ -199,7 +215,7 @@ class PullRequests(ResourceBase, IterableResource):
     def __init__(self, url, client, parent):
         super(PullRequests, self).__init__(url, client, parent)
 
-    def all(self, direction='INCOMING', at=None, state='OPEN', order=None):
+    def all(self, direction='INCOMING', at=None, state='OPEN', order=None, author=None):
         """
         Retrieve pull requests to or from the specified repository.
 
@@ -221,6 +237,9 @@ class PullRequests(ResourceBase, IterableResource):
             params['state'] = state
         if order is not None:
             params['order'] = order
+        if author is not None:
+            params['role.1'] = 'AUTHOR'
+            params['username.1'] = author
 
         return self.paginate("", params=params)
 
