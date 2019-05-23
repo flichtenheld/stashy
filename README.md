@@ -1,8 +1,11 @@
 # stashy
 
-Python client for the Atlassian Bitbucket Server (formerly known as Stash) [REST API](https://docs.atlassian.com/bitbucket-server/rest/5.7.0/bitbucket-rest.html). Supports Python 2.6, 2.7 and 3.3.
+Python client for the Atlassian Bitbucket Server (formerly known as Stash) [REST API](https://docs.atlassian.com/bitbucket-server/rest/5.7.0/bitbucket-rest.html). Supports Python 2.6, 2.7, 3.5, 3.6 and 3.7
 
-[![Build Status](https://travis-ci.org/RisingOak/stashy.png?branch=master)](https://travis-ci.org/RisingOak/stashy)
+[![Build Status](https://travis-ci.org/cosmin/stashy.png?branch=master)](https://travis-ci.org/cosmin/stashy)
+[![PyPI version](https://img.shields.io/pypi/v/stashy.svg)](https://pypi.org/project/stashy)
+[![conda-forge](https://img.shields.io/conda/vn/conda-forge/stashy.svg)](https://anaconda.org/conda-forge/stashy)
+
 
 ## Installation
 
@@ -57,7 +60,7 @@ list(stash.projects[PROJECT].repos[REPO].pull_requests[PULL_REQUEST].commits())
 * Show the diff of a pull request
 
 ```python
-stash.project[PROJECT].repos[REPO].pull_requests[PULL_REQUEST].diff()
+stash.projects[PROJECT].repos[REPO].pull_requests[PULL_REQUEST].diff()
 ```
 
 * List all branch restrictions for a repo
@@ -96,6 +99,11 @@ stash.projects[PROJECT].repos[REPO].permitted.list()
 /projects/{projectKey}/permissions/users [GET, PUT, DELETE]
 /projects/{projectKey}/permissions/users/none [GET]
 /projects/{projectKey}/permissions/{permission}/all [GET, POST]
+/projects/{projectKey}/settings/hooks [GET]
+/projects/{projectKey}/settings/hooks/{hookKey} [GET]
+/projects/{projectKey}/settings/hooks/{hookKey}/enabled [PUT, DELETE]
+/projects/{projectKey}/settings/hooks/{hookKey}/settings [PUT, GET]
+/projects/{projectKey}/settings/pull-requests [GET, POST]
 /projects/{projectKey}/repos [POST, GET]
 /projects/{projectKey}/repos/{repositorySlug} [DELETE, POST, PUT, GET]
 /projects/{projectKey}/repos/{repositorySlug}/branches [GET, PUT, DELETE]
@@ -120,8 +128,9 @@ stash.projects[PROJECT].repos[REPO].permitted.list()
 /projects/{projectKey}/repos/{repositorySlug}/settings/hooks/{hookKey}/enabled [PUT, DELETE]
 /projects/{projectKey}/repos/{repositorySlug}/settings/hooks/{hookKey}/settings [PUT, GET]
 /projects/{projectKey}/repos/{repositorySlug}/settings/pull-requests [GET, POST]
-/projects/{projectKey}/repos/{repositorySlug}/tags [GET]
+/projects/{projectKey}/repos/{repositorySlug}/tags [GET, POST, DELETE]
 /build-status/1.0/commits/{commit-hash} [GET, POST]
+sync/latest/projects/{projectKey}/repos/{repositorySlug} [POST]
 ```
 
 ## Not yet implemented
